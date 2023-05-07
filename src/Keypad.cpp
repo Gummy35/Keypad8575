@@ -79,7 +79,7 @@ bool Keypad::getKeys() {
 	return keyActivity;
 }
 
-// Private : Hardware scan
+// Virtual : Hardware scan
 void Keypad::scanKeys() {
 	// Re-intialize the row pins. Allows sharing these pins with other hardware.
 	for (byte r=0; r<sizeKpd.rows; r++) {
