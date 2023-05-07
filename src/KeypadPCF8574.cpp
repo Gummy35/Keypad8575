@@ -7,7 +7,7 @@ KeypadPCF8574::KeypadPCF8574(*PCF8574 ioChipToSet, char *userKeymap, byte *row, 
 
 void KeypadPCF8574::pin_mode(byte pinNum, byte mode)
 {
-	//ioChip->pinMode(pinNum, mode);
+
 }
 void KeypadPCF8574::pin_write(byte pinNum, boolean level)
 {
@@ -19,27 +19,28 @@ int  KeypadPCF8574::pin_read(byte pinNum)
 }
 void KeypadPCF8574::scanKeys()
 {
-	//Turn on all columns.
-	OutputBuffer = 0;
+	//Turn on all columns and rows.
+	//The PCF8574 is better at grounding than raising a pin.
+	OutputBuffer = 0xFF;
 	for (uint8_t ColumnIndex = 0; ColumnIndex < sizeKpd.columns; ColumnIndex++)
 	{
-		//pin_mode(columnPins[ColumnIndex],OUTPUT);
-		bitWrite(OutputBuffer, columnPins[ColumnIndex], 1);
+		bitWrite(OutputBuffer, columnPins[ColumnIndex], 0);
 	}
 	ioChip->write8(OutputBuffer);
 	//Read all the rows.
+	//If any are grounded, then we know a switch is active.
 	InputBuffer = ioChip->read8();
-	bool AllOff = true;
+	bool AllInactive = true;
 	for (uint8_t RowIndex = 0; RowIndex < sizeKpd.rows; RowIndex++)
 	{
-		if ( bitRead(InputBuffer, rowPins[RowIndex]) )
+		if ( bitRead(InputBuffer, rowPins[RowIndex]) == false )
 		{
-			AllOff = false;
+			AllInactive = false;
 			break;
 		}
 	}
 	//If nothing active, reset the bitMap to all off and return.
-	if (AllOff)
+	if (AllInactive)
 	{
 		for (uint8_t ColumnIndex=0; ColumnIndex<sizeKpd.columns; ColumnIndex++)
 		{
@@ -49,34 +50,26 @@ void KeypadPCF8574::scanKeys()
 			}
 		}
 		//Turn off output.
-		OutputBuffer = 0;
+		OutputBuffer = 0xFF;
 		ioChip->write8(OutputBuffer);
-		//for (uint8_t ColumnIndex=0; ColumnIndex<sizeKpd.columns; ColumnIndex++)
-		//{
-		//	pin_mode(columnPins[ColumnIndex],INPUT);
-		//}
 		return;
 	}
-	//At least one button is active. So turn off all columns.
-	OutputBuffer = 0;
+	//At least one button is active. So read one column at a time.
+	OutputBuffer = 0xFF;
 	ioChip->write8(OutputBuffer);
-	//for (uint8_t ColumnIndex=0; ColumnIndex<sizeKpd.columns; ColumnIndex++)
-	//{
-	//	pin_mode(columnPins[ColumnIndex],INPUT);
-	//}
 	//Test each column independently and write results to bitMap.
 	for (uint8_t ColumnIndex=0; ColumnIndex<sizeKpd.columns; ColumnIndex++)
 	{
-		//pin_mode(columnPins[ColumnIndex],OUTPUT);
-		pin_write(columnPins[ColumnIndex], HIGH);	// Begin column pulse output.
+		// Begin column pulse output.
+		pin_write(columnPins[ColumnIndex], LOW);
 		InputBuffer = ioChip->read8();
 		for (uint8_t RowIndex=0; RowIndex<sizeKpd.rows; RowIndex++)
 		{
-			bitWrite(bitMap[RowIndex], ColumnIndex, bitread(InputBuffer[rowPins[RowIndex]]));  // keypress is active low so invert to high.
+			//If the pin is low, then the switch is active.
+			bitWrite(bitMap[RowIndex], ColumnIndex, bitread(InputBuffer[rowPins[RowIndex]]) == false);
 		}
-		// Set pin to high impedance input. Effectively ends column pulse.
-		pin_write(columnPins[ColumnIndex],LOW);
-		//pin_mode(columnPins[ColumnIndex],INPUT);
+		// Set pin to output high. Effectively ends column pulse.
+		pin_write(columnPins[ColumnIndex],HIGH);
 	}
 }
 
