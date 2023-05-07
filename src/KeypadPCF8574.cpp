@@ -57,6 +57,7 @@ void KeypadPCF8574::scanKeys()
 	//At least one button is active. So read one column at a time.
 	OutputBuffer = 0xFF;
 	ioChip->write8(OutputBuffer);
+	bool PinStatus = false;
 	//Test each column independently and write results to bitMap.
 	for (uint8_t ColumnIndex=0; ColumnIndex<sizeKpd.columns; ColumnIndex++)
 	{
@@ -66,7 +67,8 @@ void KeypadPCF8574::scanKeys()
 		for (uint8_t RowIndex=0; RowIndex<sizeKpd.rows; RowIndex++)
 		{
 			//If the pin is low, then the switch is active.
-			bitWrite(bitMap[RowIndex], ColumnIndex, bitread(InputBuffer[rowPins[RowIndex]]) == false);
+			PinStatus = bitread(InputBuffer[rowPins[RowIndex]]) == false;
+			bitWrite(bitMap[RowIndex], ColumnIndex, PinStatus);
 		}
 		// Set pin to output high. Effectively ends column pulse.
 		pin_write(columnPins[ColumnIndex],HIGH);
