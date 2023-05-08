@@ -42,7 +42,7 @@
 class PCF8574Keypad : public Keypad {
 public:
 
-	PCF8574Keypad(uint8_t Address, TwoWire *wire, uint8_t SDAPin, uint8_t SCLPin, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
+	PCF8574Keypad(*PCF8574 ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
 
 	void pin_mode(byte pinNum, byte mode) { pinMode(pinNum, mode); }
 	void pin_write(byte pinNum, boolean level) { digitalWrite(pinNum, level); }
