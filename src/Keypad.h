@@ -100,15 +100,17 @@ public:
 	bool keyStateChanged();
 	byte numKeys();
 
-private:
-	unsigned long startTime;
+protected:
 	char *keymap;
 	byte *rowPins;
 	byte *columnPins;
 	KeypadSize sizeKpd;
+	bool single_key;
+
+private:
+	unsigned long startTime;
 	uint debounceTime;
 	uint holdTime;
-	bool single_key;
 
 	bool updateList();
 	void nextKeyState(byte n, boolean button);

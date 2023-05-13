@@ -30,42 +30,26 @@
 ||
 */
 
-#ifndef KEYPAD_H
-#define KEYPAD_H
+#ifndef PCF8574KEYPAD_H
+#define PCF8574KEYPAD_H
 
-#include "Key.h"
-#include "Keypad.h"
-#include "PCF8574.h"
-#include "Wire.h"
+#include <Keypad.h>
+#include <PCF8574.h>
+#include <Wire.h>
 
-//class Keypad : public Key, public HAL_obj {
-class PCF8574Keypad : public Keypad {
-public:
+class KeypadPCF8574 : public Keypad
+{
+	public:
+		KeypadPCF8574(PCF8574 *ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
+		void pin_mode(byte pinNum, byte mode);
+		void pin_write(byte pinNum, boolean level);
+		int pin_read(byte pinNum);
+		void scanKeys();
 
-	PCF8574Keypad(*PCF8574 ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
-
-	void pin_mode(byte pinNum, byte mode) { pinMode(pinNum, mode); }
-	void pin_write(byte pinNum, boolean level) { digitalWrite(pinNum, level); }
-	int  pin_read(byte pinNum) { return digitalRead(pinNum); }
-	void scanKeys();
-
-private:
-	PC8574 *ioChip;
-	unsigned long startTime;
-	char *keymap;
-	byte *rowPins;
-	byte *columnPins;
-	KeypadSize sizeKpd;
-	uint debounceTime;
-	uint holdTime;
-	bool single_key;
-	uint8_t OutputBuffer;
-	uint8_t InputBuffer;
-
-	bool updateList();
-	void nextKeyState(byte n, boolean button);
-	void transitionTo(byte n, KeyState nextState);
-	void (*keypadEventListener)(char);
+	private:
+		PCF8574 *ioChip;
+		uint8_t OutputBuffer;
+		uint8_t InputBuffer;
 };
 
 #endif

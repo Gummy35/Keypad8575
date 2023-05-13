@@ -1,6 +1,6 @@
 #include "KeypadPCF8574.h"
 
-KeypadPCF8574::KeypadPCF8574(*PCF8574 ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols) : KeyPad(userKeymap, row, col, numRows, numCols)
+KeypadPCF8574::KeypadPCF8574(PCF8574 *ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols) : Keypad(userKeymap, row, col, numRows, numCols)
 {
 	ioChip = ioChipToSet;
 }
@@ -22,11 +22,17 @@ void KeypadPCF8574::scanKeys()
 	//Turn on all columns and rows.
 	//The PCF8574 is better at grounding than raising a pin.
 	OutputBuffer = 0xFF;
+	//Serial.print("C:");
+	//Serial.println(sizeKpd.columns);
 	for (uint8_t ColumnIndex = 0; ColumnIndex < sizeKpd.columns; ColumnIndex++)
 	{
 		bitWrite(OutputBuffer, columnPins[ColumnIndex], 0);
+		//Serial.print("D:");
+		//Serial.println(columnPins[ColumnIndex]);
 	}
 	ioChip->write8(OutputBuffer);
+	//Serial.print("O:");
+	//Serial.println(OutputBuffer,BIN);
 	//Read all the rows.
 	//If any are grounded, then we know a switch is active.
 	InputBuffer = ioChip->read8();
@@ -67,7 +73,7 @@ void KeypadPCF8574::scanKeys()
 		for (uint8_t RowIndex=0; RowIndex<sizeKpd.rows; RowIndex++)
 		{
 			//If the pin is low, then the switch is active.
-			PinStatus = bitread(InputBuffer[rowPins[RowIndex]]) == false;
+			PinStatus = bitRead(InputBuffer,rowPins[RowIndex]) == false;
 			bitWrite(bitMap[RowIndex], ColumnIndex, PinStatus);
 		}
 		// Set pin to output high. Effectively ends column pulse.
