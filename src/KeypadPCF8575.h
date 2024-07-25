@@ -32,28 +32,36 @@
 ||
 */
 
-#ifndef PCF8574KEYPAD_H
-#define PCF8574KEYPAD_H
+#ifndef PCF8575KEYPAD_H
+#define PCF8575KEYPAD_H
 
 #include <Keypad.h>
-#include <PCF8574.h>
+#include <PCF8575.h>
 #include <Wire.h>
 
-class KeypadPCF8574 : public Keypad
+#define MAX_LIST_SIZE 16
+
+class KeypadPCF8575 : public Keypad
 {
 	public:
-		KeypadPCF8574(PCF8574 *ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
+		KeypadPCF8575(PCF8575 *ioChipToSet, char *userKeymap, byte *row, byte *col, byte numRows, byte numCols);
 		void pin_mode(byte pinNum, byte mode);
 		void pin_write(byte pinNum, boolean level);
 		int pin_read(byte pinNum);
-		void scanKeys();
-
+		virtual void scanKeys();
+		virtual bool getKeys();
+		void addChangesEventListener(void (*listener)(uint8_t[], uint8_t[], uint8_t, uint8_t));
+		void enableInterrupt();
+		PCF8575 *ioChip;
+		uint8_t Pressed[MAX_LIST_SIZE];
+		uint8_t Released[MAX_LIST_SIZE];
+		uint previousBitmap[MAPSIZE];
 	private:
-		PCF8574 *ioChip;
-		uint8_t OutputBuffer;
-		uint8_t InputBuffer;
+		uint16_t OutputBuffer;
+		uint16_t InputBuffer;
+		uint16_t InputCheckMask;
+		void (*KeypadPCF8575EventListener)(uint8_t[], uint8_t[], uint8_t, uint8_t);
+
 };
 
 #endif
-
-*/

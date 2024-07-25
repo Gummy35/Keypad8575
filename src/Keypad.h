@@ -87,7 +87,7 @@ public:
 	unsigned long holdTimer;
 
 	char getKey();
-	bool getKeys();
+	virtual bool getKeys();
 	KeyState getState();
 	void begin(char *userKeymap);
 	bool isPressed(char keyChar);
@@ -99,18 +99,18 @@ public:
 	char waitForKey();
 	bool keyStateChanged();
 	byte numKeys();
+	char *keymap;
 
 protected:
-	char *keymap;
 	byte *rowPins;
 	byte *columnPins;
 	KeypadSize sizeKpd;
 	bool single_key;
-
-private:
 	unsigned long startTime;
 	uint debounceTime;
 	uint holdTime;
+
+private:
 
 	bool updateList();
 	void nextKeyState(byte n, boolean button);
