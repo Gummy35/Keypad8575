@@ -52,6 +52,7 @@ class KeypadPCF8575 : public Keypad
 		virtual bool getKeys();
 		void addChangesEventListener(void (*listener)(uint8_t[], uint8_t[], uint8_t, uint8_t));
 		void enableInterrupt();
+		bool isPressed(uint8_t keyCode);
 		PCF8575 *ioChip;
 		uint8_t Pressed[MAX_LIST_SIZE];
 		uint8_t Released[MAX_LIST_SIZE];

@@ -81,6 +81,13 @@ void KeypadPCF8575::enableInterrupt()
     ioChip->write16(InputCheckMask);
 }
 
+bool KeypadPCF8575::isPressed(uint8_t keyCode)
+{
+    bool res = false;
+    res = bitRead(bitMap[keyCode / sizeKpd.columns], keyCode % sizeKpd.columns);
+    return res;
+}
+
 bool KeypadPCF8575::getKeys() {
 	bool keyActivity = false;
     uint16_t delta, currentRow;
